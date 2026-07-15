@@ -242,11 +242,11 @@ SESSION_DRIVER=database
 - [x] Dark/Light Mode
 - [x] CI/CD Pipeline
 
-### 🔜 Phase 2 — Core Notes
-- [ ] CRUD Catatan (multi-tipe)
-- [ ] Kategori & Label
-- [ ] Pencarian Cerdas (full-text search)
-- [ ] Rich Text Editor
+### ✅ Phase 2 — Core Notes (Selesai)
+- [x] CRUD Catatan (multi-tipe)
+- [x] Kategori & Label
+- [x] Pencarian Cerdas (full-text search)
+- [x] Rich Text Editor
 
 ### 🔜 Phase 3 — Produktivitas
 - [ ] Tugas & Deadline (Kanban board)
@@ -276,5 +276,6 @@ Proyek ini merupakan proyek pribadi. Hak cipta dilindungi.
 ## 👤 Author
 
 Dibangun dengan ❤️ untuk produktivitas yang lebih baik.
-#   N o t e d s - A l l - I n - O n e  
+#   N o t e d s - A l l - I n - O n e 
+ 
  
