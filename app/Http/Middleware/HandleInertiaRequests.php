@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+use App\Data\UserTeam;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -44,8 +46,34 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user,
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
-            'currentTeam' => fn () => $user?->currentTeam ? $user->toUserTeam($user->currentTeam) : null,
+            'currentTeam' => fn () => $this->resolveCurrentTeam($user),
             'teams' => fn () => $user?->toUserTeams(includeCurrent: true) ?? [],
         ];
+    }
+
+    /**
+     * Resolve the current team for the user.
+     *
+     * Falls back to the user's personal team when currentTeam is null,
+     * ensuring the frontend always receives a valid team object.
+     */
+    protected function resolveCurrentTeam(?User $user): ?UserTeam
+    {
+        if (! $user) {
+            return null;
+        }
+
+        $team = $user->currentTeam ?? $user->personalTeam();
+
+        if (! $team) {
+            return null;
+        }
+
+        // Auto-set current_team_id if it was not set
+        if (! $user->current_team_id) {
+            $user->switchTeam($team);
+        }
+
+        return $user->toUserTeam($team);
     }
 }

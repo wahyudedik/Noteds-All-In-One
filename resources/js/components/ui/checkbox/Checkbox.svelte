@@ -9,7 +9,6 @@
         id,
         name,
         value,
-        ...rest
     }: {
         checked?: boolean;
         disabled?: boolean;
@@ -17,7 +16,6 @@
         id?: string;
         name?: string;
         value?: string;
-        [key: string]: unknown;
     } = $props();
 </script>
 
@@ -34,7 +32,6 @@
         className,
     )}
     onclick={() => { if (!disabled) checked = !checked; }}
-    {...rest}
 >
     {#if checked}
         <div data-slot="checkbox-indicator" class="grid place-content-center text-current transition-none">

@@ -15,11 +15,11 @@ class SearchController extends Controller
     /**
      * Search notes for the current team.
      */
-    public function index(Request $request, Team $team): Response
+    public function index(Request $request, Team $current_team): Response
     {
-        Gate::authorize('viewAny', [Note::class, $team]);
+        Gate::authorize('viewAny', [$current_team]);
 
-        $query = Note::forTeam($team)
+        $query = Note::forTeam($current_team)
             ->notArchived()
             ->with(['category', 'labels', 'author']);
 
@@ -42,8 +42,8 @@ class SearchController extends Controller
 
         $notes = $query->latest('updated_at')->paginate(20)->withQueryString();
 
-        $categories = $team->categories()->orderBy('name')->get();
-        $labels = $team->labels()->orderBy('name')->get();
+        $categories = $current_team->categories()->orderBy('name')->get();
+        $labels = $current_team->labels()->orderBy('name')->get();
 
         return Inertia::render('notes/Search', [
             'notes' => $notes,
@@ -51,9 +51,9 @@ class SearchController extends Controller
             'labels' => $labels,
             'filters' => $request->only(['q', 'type', 'category_id', 'label_id']),
             'team' => [
-                'id' => $team->id,
-                'name' => $team->name,
-                'slug' => $team->slug,
+                'id' => $current_team->id,
+                'name' => $current_team->name,
+                'slug' => $current_team->slug,
             ],
         ]);
     }

@@ -17,11 +17,11 @@ class LabelController extends Controller
     /**
      * Display a listing of labels for the current team.
      */
-    public function index(Request $request, Team $team): Response
+    public function index(Request $request, Team $current_team): Response
     {
-        Gate::authorize('viewAny', [Label::class, $team]);
+        Gate::authorize('viewAny', [$current_team]);
 
-        $labels = $team->labels()
+        $labels = $current_team->labels()
             ->withCount('notes')
             ->orderBy('name')
             ->get();
@@ -29,9 +29,9 @@ class LabelController extends Controller
         return Inertia::render('labels/Index', [
             'labels' => $labels,
             'team' => [
-                'id' => $team->id,
-                'name' => $team->name,
-                'slug' => $team->slug,
+                'id' => $current_team->id,
+                'name' => $current_team->name,
+                'slug' => $current_team->slug,
             ],
         ]);
     }
@@ -39,42 +39,42 @@ class LabelController extends Controller
     /**
      * Store a newly created label.
      */
-    public function store(StoreLabelRequest $request, Team $team): RedirectResponse
+    public function store(StoreLabelRequest $request, Team $current_team): RedirectResponse
     {
-        Gate::authorize('create', [Label::class, $team]);
+        Gate::authorize('create', [$current_team]);
 
-        $team->labels()->create($request->validated());
+        $current_team->labels()->create($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Label created.')]);
 
-        return to_route('labels.index', ['current_team' => $team->slug]);
+        return to_route('labels.index', ['current_team' => $current_team->slug]);
     }
 
     /**
      * Update the specified label.
      */
-    public function update(StoreLabelRequest $request, Team $team, Label $label): RedirectResponse
+    public function update(StoreLabelRequest $request, Team $current_team, Label $label): RedirectResponse
     {
-        Gate::authorize('update', [$label, $team]);
+        Gate::authorize('update', [$label, $current_team]);
 
         $label->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Label updated.')]);
 
-        return to_route('labels.index', ['current_team' => $team->slug]);
+        return to_route('labels.index', ['current_team' => $current_team->slug]);
     }
 
     /**
      * Remove the specified label.
      */
-    public function destroy(Team $team, Label $label): RedirectResponse
+    public function destroy(Team $current_team, Label $label): RedirectResponse
     {
-        Gate::authorize('delete', [$label, $team]);
+        Gate::authorize('delete', [$label, $current_team]);
 
         $label->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Label deleted.')]);
 
-        return to_route('labels.index', ['current_team' => $team->slug]);
+        return to_route('labels.index', ['current_team' => $current_team->slug]);
     }
 }

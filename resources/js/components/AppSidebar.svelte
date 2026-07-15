@@ -1,11 +1,10 @@
 <script lang="ts">
     import { Link, page } from '@inertiajs/svelte';
     import BookOpen from 'lucide-svelte/icons/book-open';
+    import FileText from 'lucide-svelte/icons/file-text';
     import FolderGit2 from 'lucide-svelte/icons/folder-git-2';
     import LayoutGrid from 'lucide-svelte/icons/layout-grid';
-    import FileText from 'lucide-svelte/icons/file-text';
     import Search from 'lucide-svelte/icons/search';
-    import Tag from 'lucide-svelte/icons/tag';
     import type { Snippet } from 'svelte';
     import AppLogo from '@/components/AppLogo.svelte';
     import NavFooter from '@/components/NavFooter.svelte';
@@ -30,10 +29,12 @@
         children?: Snippet;
     } = $props();
 
-    const currentTeam = $derived(page.props.currentTeam as Team | null);
-    const teamSlug = $derived(currentTeam?.slug || '');
+    const currentTeam = $derived(
+        (page.props.currentTeam ?? null) as Team | null,
+    );
+    const teamSlug = $derived(currentTeam?.slug ?? '');
     const dashboardUrl = $derived(
-        currentTeam ? dashboard(currentTeam.slug) : '/',
+        currentTeam?.slug ? dashboard(currentTeam.slug) : '/',
     );
 
     const mainNavItems = $derived<NavItem[]>([

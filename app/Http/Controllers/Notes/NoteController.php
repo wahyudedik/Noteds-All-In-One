@@ -21,11 +21,11 @@ class NoteController extends Controller
     /**
      * Display a listing of notes for the current team.
      */
-    public function index(Request $request, Team $team): Response
+    public function index(Request $request, Team $current_team): Response
     {
-        Gate::authorize('viewAny', [Note::class, $team]);
+        Gate::authorize('viewAny', [$current_team]);
 
-        $query = Note::forTeam($team)
+        $query = Note::forTeam($current_team)
             ->with(['category', 'labels', 'author'])
             ->latest('is_pinned')
             ->latest('updated_at');
@@ -57,8 +57,8 @@ class NoteController extends Controller
 
         $notes = $query->paginate(20)->withQueryString();
 
-        $categories = $team->categories()->orderBy('name')->get();
-        $labels = $team->labels()->orderBy('name')->get();
+        $categories = $current_team->categories()->orderBy('name')->get();
+        $labels = $current_team->labels()->orderBy('name')->get();
 
         return Inertia::render('notes/Index', [
             'notes' => $notes,
@@ -66,9 +66,9 @@ class NoteController extends Controller
             'labels' => $labels,
             'filters' => $request->only(['type', 'category_id', 'label_id', 'q', 'archived']),
             'team' => [
-                'id' => $team->id,
-                'name' => $team->name,
-                'slug' => $team->slug,
+                'id' => $current_team->id,
+                'name' => $current_team->name,
+                'slug' => $current_team->slug,
             ],
         ]);
     }
@@ -76,12 +76,12 @@ class NoteController extends Controller
     /**
      * Show the form for creating a new note.
      */
-    public function create(Request $request, Team $team): Response
+    public function create(Request $request, Team $current_team): Response
     {
-        Gate::authorize('create', [Note::class, $team]);
+        Gate::authorize('create', [$current_team]);
 
-        $categories = $team->categories()->orderBy('name')->get();
-        $labels = $team->labels()->orderBy('name')->get();
+        $categories = $current_team->categories()->orderBy('name')->get();
+        $labels = $current_team->labels()->orderBy('name')->get();
 
         return Inertia::render('notes/Create', [
             'categories' => $categories,
@@ -93,9 +93,9 @@ class NoteController extends Controller
                 'defaultContent' => $type->defaultContent(),
             ]),
             'team' => [
-                'id' => $team->id,
-                'name' => $team->name,
-                'slug' => $team->slug,
+                'id' => $current_team->id,
+                'name' => $current_team->name,
+                'slug' => $current_team->slug,
             ],
         ]);
     }
@@ -103,12 +103,12 @@ class NoteController extends Controller
     /**
      * Store a newly created note.
      */
-    public function store(StoreNoteRequest $request, Team $team): RedirectResponse
+    public function store(StoreNoteRequest $request, Team $current_team): RedirectResponse
     {
-        Gate::authorize('create', [Note::class, $team]);
+        Gate::authorize('create', [$current_team]);
 
         $note = Note::create([
-            'team_id' => $team->id,
+            'team_id' => $current_team->id,
             'user_id' => $request->user()->id,
             'title' => $request->validated('title'),
             'content' => $request->validated('content'),
@@ -126,24 +126,24 @@ class NoteController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Note created.')]);
 
-        return to_route('notes.show', ['current_team' => $team->slug, 'note' => $note->id]);
+        return to_route('notes.show', ['current_team' => $current_team->slug, 'note' => $note->id]);
     }
 
     /**
      * Display the specified note.
      */
-    public function show(Team $team, Note $note): Response
+    public function show(Team $current_team, Note $note): Response
     {
-        Gate::authorize('view', [$note, $team]);
+        Gate::authorize('view', [$note, $current_team]);
 
         $note->load(['category', 'labels', 'author']);
 
         return Inertia::render('notes/Show', [
             'note' => $note,
             'team' => [
-                'id' => $team->id,
-                'name' => $team->name,
-                'slug' => $team->slug,
+                'id' => $current_team->id,
+                'name' => $current_team->name,
+                'slug' => $current_team->slug,
             ],
         ]);
     }
@@ -151,14 +151,14 @@ class NoteController extends Controller
     /**
      * Show the form for editing the specified note.
      */
-    public function edit(Team $team, Note $note): Response
+    public function edit(Team $current_team, Note $note): Response
     {
-        Gate::authorize('update', [$note, $team]);
+        Gate::authorize('update', [$note, $current_team]);
 
         $note->load(['labels']);
 
-        $categories = $team->categories()->orderBy('name')->get();
-        $labels = $team->labels()->orderBy('name')->get();
+        $categories = $current_team->categories()->orderBy('name')->get();
+        $labels = $current_team->labels()->orderBy('name')->get();
 
         return Inertia::render('notes/Edit', [
             'note' => $note,
@@ -170,9 +170,9 @@ class NoteController extends Controller
                 'icon' => $type->icon(),
             ]),
             'team' => [
-                'id' => $team->id,
-                'name' => $team->name,
-                'slug' => $team->slug,
+                'id' => $current_team->id,
+                'name' => $current_team->name,
+                'slug' => $current_team->slug,
             ],
         ]);
     }
@@ -180,9 +180,9 @@ class NoteController extends Controller
     /**
      * Update the specified note.
      */
-    public function update(UpdateNoteRequest $request, Team $team, Note $note): RedirectResponse
+    public function update(UpdateNoteRequest $request, Team $current_team, Note $note): RedirectResponse
     {
-        Gate::authorize('update', [$note, $team]);
+        Gate::authorize('update', [$note, $current_team]);
 
         $note->update([
             'title' => $request->validated('title', $note->title),
@@ -201,31 +201,31 @@ class NoteController extends Controller
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Note updated.')]);
 
-        return to_route('notes.show', ['current_team' => $team->slug, 'note' => $note->id]);
+        return to_route('notes.show', ['current_team' => $current_team->slug, 'note' => $note->id]);
     }
 
     /**
      * Remove the specified note.
      */
-    public function destroy(Team $team, Note $note): RedirectResponse
+    public function destroy(Team $current_team, Note $note): RedirectResponse
     {
-        Gate::authorize('delete', [$note, $team]);
+        Gate::authorize('delete', [$note, $current_team]);
 
         $note->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Note deleted.')]);
 
-        return to_route('notes.index', ['current_team' => $team->slug]);
+        return to_route('notes.index', ['current_team' => $current_team->slug]);
     }
 
     /**
      * Toggle the pinned status of the note.
      */
-    public function togglePin(Team $team, Note $note): RedirectResponse
+    public function togglePin(Team $current_team, Note $note): RedirectResponse
     {
-        Gate::authorize('update', [$note, $team]);
+        Gate::authorize('update', [$note, $current_team]);
 
-        $note->update(['is_pinned' => !$note->is_pinned]);
+        $note->update(['is_pinned' => ! $note->is_pinned]);
 
         Inertia::flash('toast', [
             'type' => 'success',
@@ -238,11 +238,11 @@ class NoteController extends Controller
     /**
      * Toggle the archived status of the note.
      */
-    public function toggleArchive(Team $team, Note $note): RedirectResponse
+    public function toggleArchive(Team $current_team, Note $note): RedirectResponse
     {
-        Gate::authorize('update', [$note, $team]);
+        Gate::authorize('update', [$note, $current_team]);
 
-        $note->update(['is_archived' => !$note->is_archived]);
+        $note->update(['is_archived' => ! $note->is_archived]);
 
         Inertia::flash('toast', [
             'type' => 'success',

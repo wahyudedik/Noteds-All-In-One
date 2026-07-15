@@ -16,6 +16,8 @@ Platform catatan all-in-one yang dibangun dengan **Laravel** dan **Svelte 5** me
 | **Autentikasi** | [Laravel Fortify](https://fortify.laravel.com) |
 | **Keamanan** | 2FA (TOTP), Passkey/WebAuthn |
 | **Tim** | Manajemen tim, undangan, role-based access |
+| **Editor** | [TipTap](https://tiptap.dev) (Rich Text Editor) |
+| **Search** | SQLite FTS5 (Full-Text Search) |
 | **Code Quality** | PHPStan/Larastan, Laravel Pint, ESLint, Prettier |
 | **Testing** | PHPUnit |
 | **CI/CD** | GitHub Actions |
@@ -50,6 +52,18 @@ Platform catatan all-in-one yang dibangun dengan **Laravel** dan **Svelte 5** me
 - Ubah password
 - Kelola keamanan (2FA & Passkey)
 - Hapus akun
+
+### 📝 Core Notes
+- **CRUD Catatan** — buat, baca, ubah, hapus catatan
+- **Multi-tipe** — Teks (Rich Text), Checklist, List, Code
+- **Rich Text Editor** — TipTap-based editor dengan toolbar formatting
+- **Kategori** — organisasi catatan berdasarkan kategori warna
+- **Label** — tag fleksibel untuk klasifikasi lintas kategori
+- **Pencarian Cerdas** — full-text search (FTS5) pada judul & konten
+- **Pin & Arsip** — sematkan catatan penting atau arsipkan catatan lama
+- **Filter & Sidebar** — filter berdasarkan tipe, kategori, label, status arsip
+- **Validasi Form** — error handling real-time pada form buat/ubah catatan
+- **Tema per Tim** — catatan terisolasi per tim
 
 ### 🎨 Tampilan
 - **Dark/Light mode** — toggle tema sesuai preferensi
@@ -243,10 +257,19 @@ SESSION_DRIVER=database
 - [x] CI/CD Pipeline
 
 ### ✅ Phase 2 — Core Notes (Selesai)
-- [x] CRUD Catatan (multi-tipe)
-- [x] Kategori & Label
-- [x] Pencarian Cerdas (full-text search)
-- [x] Rich Text Editor
+- [x] Database schema (categories, labels, notes, label_note pivot, FTS5)
+- [x] Models & Relationships (Note, Category, Label + scopes)
+- [x] Enum NoteType (text, checklist, list, code)
+- [x] Backend CRUD Catatan (NoteController + Requests + Policies)
+- [x] Backend CRUD Kategori & Label
+- [x] Rich Text Editor (TipTap-based)
+- [x] Frontend Pages — Index, Create, Edit, Show, Search
+- [x] Filter Sidebar (tipe, kategori, label, arsip)
+- [x] Note Card & Note Type Selector
+- [x] Pin & Archive toggle
+- [x] Full-Text Search (FTS5 virtual table + triggers)
+- [x] Seeders & Factories
+- [x] Validation error display pada form
 
 ### 🔜 Phase 3 — Produktivitas
 - [ ] Tugas & Deadline (Kanban board)
@@ -263,7 +286,6 @@ SESSION_DRIVER=database
 - [ ] Enkripsi End-to-End
 - [ ] Export/Import (PDF, Markdown, JSON)
 - [ ] API untuk integrasi pihak ketiga
-- [ ] Mobile app (React Native / Flutter)
 
 ---
 
@@ -276,6 +298,3 @@ Proyek ini merupakan proyek pribadi. Hak cipta dilindungi.
 ## 👤 Author
 
 Dibangun dengan ❤️ untuk produktivitas yang lebih baik.
-#   N o t e d s - A l l - I n - O n e 
- 
- 

@@ -34,6 +34,11 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+        // Set current_team_id so Inertia shared data (currentTeam) is not null
+        if (! $user->current_team_id) {
+            $user->switchTeam($team);
+        }
+
         // ── Categories ──────────────────────────────────────
         $categories = collect([
             ['name' => 'Pekerjaan', 'color' => '#3B82F6', 'icon' => 'briefcase'],

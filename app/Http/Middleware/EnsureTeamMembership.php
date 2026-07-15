@@ -18,9 +18,33 @@ class EnsureTeamMembership
      */
     public function handle(Request $request, Closure $next, ?string $minimumRole = null): Response
     {
-        [$user, $team] = [$request->user(), $this->team($request)];
+        $user = $request->user();
 
-        abort_if(! $user || ! $team || ! $user->belongsToTeam($team), 403);
+        if (! $user) {
+            abort(403);
+        }
+
+        $team = $this->team($request);
+
+        // If team slug is invalid, redirect to personal team
+        if (! $team) {
+            $fallback = $user->currentTeam ?? $user->personalTeam();
+
+            if ($fallback) {
+                // Replace the first path segment (invalid slug) with the valid team slug
+                $path = $request->decodedPath();
+                $segments = explode('/', ltrim($path, '/'));
+                $segments[0] = $fallback->slug;
+
+                return redirect('/'.implode('/', $segments));
+            }
+
+            abort(403);
+        }
+
+        if (! $user->belongsToTeam($team)) {
+            abort(403);
+        }
 
         $this->ensureTeamMemberHasRequiredRole($user, $team, $minimumRole);
 

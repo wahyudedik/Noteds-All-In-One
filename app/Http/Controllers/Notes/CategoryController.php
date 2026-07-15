@@ -17,11 +17,11 @@ class CategoryController extends Controller
     /**
      * Display a listing of categories for the current team.
      */
-    public function index(Request $request, Team $team): Response
+    public function index(Request $request, Team $current_team): Response
     {
-        Gate::authorize('viewAny', [Category::class, $team]);
+        Gate::authorize('viewAny', [$current_team]);
 
-        $categories = $team->categories()
+        $categories = $current_team->categories()
             ->withCount('notes')
             ->orderBy('name')
             ->get();
@@ -29,9 +29,9 @@ class CategoryController extends Controller
         return Inertia::render('categories/Index', [
             'categories' => $categories,
             'team' => [
-                'id' => $team->id,
-                'name' => $team->name,
-                'slug' => $team->slug,
+                'id' => $current_team->id,
+                'name' => $current_team->name,
+                'slug' => $current_team->slug,
             ],
         ]);
     }
@@ -39,42 +39,42 @@ class CategoryController extends Controller
     /**
      * Store a newly created category.
      */
-    public function store(StoreCategoryRequest $request, Team $team): RedirectResponse
+    public function store(StoreCategoryRequest $request, Team $current_team): RedirectResponse
     {
-        Gate::authorize('create', [Category::class, $team]);
+        Gate::authorize('create', [$current_team]);
 
-        $team->categories()->create($request->validated());
+        $current_team->categories()->create($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Category created.')]);
 
-        return to_route('categories.index', ['current_team' => $team->slug]);
+        return to_route('categories.index', ['current_team' => $current_team->slug]);
     }
 
     /**
      * Update the specified category.
      */
-    public function update(StoreCategoryRequest $request, Team $team, Category $category): RedirectResponse
+    public function update(StoreCategoryRequest $request, Team $current_team, Category $category): RedirectResponse
     {
-        Gate::authorize('update', [$category, $team]);
+        Gate::authorize('update', [$category, $current_team]);
 
         $category->update($request->validated());
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Category updated.')]);
 
-        return to_route('categories.index', ['current_team' => $team->slug]);
+        return to_route('categories.index', ['current_team' => $current_team->slug]);
     }
 
     /**
      * Remove the specified category.
      */
-    public function destroy(Team $team, Category $category): RedirectResponse
+    public function destroy(Team $current_team, Category $category): RedirectResponse
     {
-        Gate::authorize('delete', [$category, $team]);
+        Gate::authorize('delete', [$category, $current_team]);
 
         $category->delete();
 
         Inertia::flash('toast', ['type' => 'success', 'message' => __('Category deleted.')]);
 
-        return to_route('categories.index', ['current_team' => $team->slug]);
+        return to_route('categories.index', ['current_team' => $current_team->slug]);
     }
 }
